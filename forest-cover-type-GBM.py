@@ -9,6 +9,11 @@ from sklearn import model_selection, metrics
 
 import matplotlib.pyplot as plt
 
+
+"""
+Because there was so much overlap in the components of each soil classification, I decided to convert the
+one hot markings into marking each individual component
+"""
 def soilFixer(data):
     originals = {
         'Soil_Type1': '1 cathedral family - rock outcrop complex, extremely stony.', 
@@ -53,7 +58,7 @@ def soilFixer(data):
         'Soil_Type40': '40 moran family - cryorthents - rock land complex, extremely stony.'
     }
 
-    
+    # New columns
     soils = ['cathedral', 'haplobor', 'ratake', 'vanet', 'wetmore', 
             'gothic', 'supervisor', 'limber', 'troutville', 'bullwark', 
             'catamount', 'legault', 'pachic', 'gateview', 'boro', 'leighcan', 
@@ -73,13 +78,18 @@ def soilFixer(data):
                 break
 
 
+"""
+Was looking for features of similar units to play with
+morn_sun ended up being in the top 8 most highly weighted features
+"""
 def sunFixer(data):
     data['total_sun'] = data['Hillshade_9am'] + data['Hillshade_Noon'] + data['Hillshade_3pm']
     data['morn_sun'] = data['Hillshade_9am'] + data['Hillshade_Noon']
     data['after_sun'] = data['Hillshade_Noon'] + data['Hillshade_3pm']
     data['diff_sun'] = data['Hillshade_9am'] - data['Hillshade_3pm']
-    data['Hillshade_3pm'] += 1
+    data['Hillshade_3pm'] += 1 # incrementing to root zeros
     data['ratio_sun'] = data['Hillshade_9am'] / data['Hillshade_3pm']
+
     data['Aspect'] += 1
     data['Slope'] += 1
     data['aspct_slp'] = data['Aspect'] / data['Slope']
@@ -184,13 +194,13 @@ def main():
     """
     
     # Final Best Hyper Parameters
-    gbm = GradientBoostingClassifier( learning_rate=0.0625, # Tweaking here # .125 orig
-                                        n_estimators=3200, # Tweaking here # 1600 orig
-                                        min_samples_split=100, # [OK]
-                                        min_samples_leaf=40, # [OK]
-                                        max_depth=11, # [OK]
+    gbm = GradientBoostingClassifier( learning_rate=0.01, # Tweaking here # .125 orig
+                                        n_estimators=3600, # Tweaking here # 1600 orig
+                                        min_samples_split=10, # [OK]
+                                        min_samples_leaf=50, # [OK]
+                                        max_depth=14, # [OK]
                                         max_features='sqrt',
-                                        subsample=0.8, # .8 [OK]
+                                        subsample=0.9, # .8 [OK]
                                         random_state=10) # [OK]
 
     gbm.fit(train[predictors], train['Cover_Type'])
