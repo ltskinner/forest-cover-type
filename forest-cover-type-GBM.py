@@ -6,9 +6,84 @@ import numpy as np
 from sklearn.preprocessing import label_binarize
 from sklearn.ensemble import GradientBoostingClassifier 
 from sklearn import model_selection, metrics 
-#from sklearn.grid_search import GridSearchCV
 
 import matplotlib.pyplot as plt
+
+def soilFixer(data):
+    originals = {
+        'Soil_Type1': '1 cathedral family - rock outcrop complex, extremely stony.', 
+        'Soil_Type2': '2 vanet - ratake families complex, very stony.', 
+        'Soil_Type3': '3 haploborolis - rock outcrop complex, rubbly.', 
+        'Soil_Type4': '4 ratake family - rock outcrop complex, rubbly.', 
+        'Soil_Type5': '5 vanet family - rock outcrop complex complex, rubbly.', 
+        'Soil_Type6': '6 vanet - wetmore families - rock outcrop complex, stony.', 
+        'Soil_Type7': '7 gothic family.', 
+        'Soil_Type8': '8 supervisor - limber families complex.', 
+        'Soil_Type9': '9 troutville family, very stony.', 
+        'Soil_Type10': '10 bullwark - catamount families - rock outcrop complex, rubbly.', 
+        'Soil_Type11': '11 bullwark - catamount families - rock land complex, rubbly.', 
+        'Soil_Type12': '12 legault family - rock land complex, stony.', 
+        'Soil_Type13': '13 catamount family - rock land - bullwark family complex, rubbly.', 
+        'Soil_Type14': '14 pachic argiborolis - aquolis complex.', 
+        'Soil_Type15': '15 unspecified in the usfs soil and elu survey.', 
+        'Soil_Type16': '16 cryaquolis - cryoborolis complex.', 
+        'Soil_Type17': '17 gateview family - cryaquolis complex.', 
+        'Soil_Type18': '18 rogert family, very stony.', 
+        'Soil_Type19': '19 typic cryaquolis - borohemists complex.', 
+        'Soil_Type20': '20 typic cryaquepts - typic cryaquolls complex.', 
+        'Soil_Type21': '21 typic cryaquolls - leighcan family, till substratum complex.',
+        'Soil_Type22': '22 leighcan family, till substratum, extremely bouldery.', 
+        'Soil_Type23': '23 leighcan family, till substratum - typic cryaquolls complex.', 
+        'Soil_Type24': '24 leighcan family, extremely stony.', 
+        'Soil_Type25': '25 leighcan family, warm, extremely stony.', 
+        'Soil_Type26': '26 granile - catamount families complex, very stony.', 
+        'Soil_Type27': '27 leighcan family, warm - rock outcrop complex, extremely stony.', 
+        'Soil_Type28': '28 leighcan family - rock outcrop complex, extremely stony.', 
+        'Soil_Type29': '29 como - legault families complex, extremely stony.', 
+        'Soil_Type30': '30 como family - rock land - legault family complex, extremely stony.', 
+        'Soil_Type31': '31 leighcan - catamount families complex, extremely stony.', 
+        'Soil_Type32': '32 catamount family - rock outcrop - leighcan family complex, extremely stony.', 
+        'Soil_Type33': '33 leighcan - catamount families - rock outcrop complex, extremely stony.', 
+        'Soil_Type34': '34 cryorthents - rock land complex, extremely stony.', 
+        'Soil_Type35': '35 cryumbrepts - rock outcrop - cryaquepts complex.', 
+        'Soil_Type36': '36 bross family - rock land - cryumbrepts complex, extremely stony.', 
+        'Soil_Type37': '37 rock outcrop - cryumbrepts - cryorthents complex, extremely stony.', 
+        'Soil_Type38': '38 leighcan - moran families - cryaquolls complex, extremely stony.', 
+        'Soil_Type39': '39 moran family - cryorthents - leighcan family complex, extremely stony.', 
+        'Soil_Type40': '40 moran family - cryorthents - rock land complex, extremely stony.'
+    }
+
+    
+    soils = ['cathedral', 'haplobor', 'ratake', 'vanet', 'wetmore', 
+            'gothic', 'supervisor', 'limber', 'troutville', 'bullwark', 
+            'catamount', 'legault', 'pachic', 'gateview', 'boro', 'leighcan', 
+            'moran', 'granile', 'como', 'bross',
+            'cryumbrepts', 'cryaquepts', 'cryorthents', 'cryaquolls', 'cryaquolis']
+    
+    converted = {k:[] for k in soils}
+
+    for index, row in data.iterrows():
+        for c, s in enumerate(originals.keys()):
+            if row[s] == 1:
+                for nw in soils:
+                    if nw in originals[s]:
+                        converted[nw].append(1)
+                    else:
+                        converted[nw].append(0)
+                break
+
+
+def sunFixer(data):
+    data['total_sun'] = data['Hillshade_9am'] + data['Hillshade_Noon'] + data['Hillshade_3pm']
+    data['morn_sun'] = data['Hillshade_9am'] + data['Hillshade_Noon']
+    data['after_sun'] = data['Hillshade_Noon'] + data['Hillshade_3pm']
+    data['diff_sun'] = data['Hillshade_9am'] - data['Hillshade_3pm']
+    data['Hillshade_3pm'] += 1
+    data['ratio_sun'] = data['Hillshade_9am'] / data['Hillshade_3pm']
+    data['Aspect'] += 1
+    data['Slope'] += 1
+    data['aspct_slp'] = data['Aspect'] / data['Slope']
+
 
 def distEngineering(train)
     # Thank you @codename007 for this feature engineering
@@ -35,9 +110,13 @@ def main():
     train = pd.read_csv("../train.csv")
     #test = pd.read_csv("../test.csv")
 
-    # Feature Engineering - I did significant Soil_Type engineering, which did not improve results. Please see soilEngineering.py
+    # Feature Engineering
     distEngineering(train)
     #distEngineering(test)
+    soilFixer(train)
+    #soilFixer(test)
+    sunFixer(train)
+    #sunFixer(test)
 
 
     target = "Cover_Type"
