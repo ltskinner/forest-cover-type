@@ -3,4 +3,4 @@ Kaggle competition to determine predominant tree cover of an area based on geolo
 
 Link: https://www.kaggle.com/c/forest-cover-type-kernels-only/leaderboard
 
-Best score attained was 0.79596 using sklearn GBM multi-classifier
+Best score attained was 0.7997 using sklearn GBM multi-classifier
